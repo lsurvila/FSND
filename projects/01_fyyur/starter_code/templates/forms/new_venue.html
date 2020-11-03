@@ -1,42 +1,27 @@
 {% extends 'layouts/main.html' %}
+{% import "bootstrap/wtf.html" as wtf %}
 {% block title %}New Venue{% endblock %}
 {% block content %}
-  <div class="form-wrapper">
-    <form method="post" class="form">
-      <h3 class="form-heading">List a new venue <a href="{{ url_for('index') }}" title="Back to homepage"><i class="fa fa-home pull-right"></i></a></h3>
-      <div class="form-group">
-        <label for="name">Name</label>
-        {{ form.name(class_ = 'form-control', autofocus = true) }}
+<div class="form-wrapper">
+  <form action="" method="post" class="form">
+    <h3 class="form-heading">List a new venue <a href="{{ url_for('index') }}" title="Back to homepage"><i
+          class="fa fa-home pull-right"></i></a></h3>
+    {{ wtf.form_field(form.name, autofocus = true) }}
+    <div class="form-group  required">
+      <label class="control-label">City & State</label>
+      <div class="form-inline">
+        {{ wtf.form_field(form.city, autofocus = true) }}
+        {{ wtf.form_field(form.state, autofocus = true) }}
       </div>
-      <div class="form-group">
-          <label>City & State</label>
-          <div class="form-inline">
-            <div class="form-group">
-              {{ form.city(class_ = 'form-control', placeholder='City', autofocus = true) }}
-            </div>
-            <div class="form-group">
-              {{ form.state(class_ = 'form-control', placeholder='State', autofocus = true) }}
-            </div>
-          </div>
-      </div>
-      <div class="form-group">
-        <label for="address">Address</label>
-        {{ form.address(class_ = 'form-control', autofocus = true) }}
-      </div>
-      <div class="form-group">
-          <label for="phone">Phone</label>
-          {{ form.phone(class_ = 'form-control', placeholder='xxx-xxx-xxxx', autofocus = true) }}
-        </div>
-      <div class="form-group">
-        <label for="genres">Genres</label>
-        <small>Ctrl+Click to select multiple</small>
-        {{ form.genres(class_ = 'form-control', placeholder='Genres, separated by commas', id=form.state, autofocus = true) }}
-      </div>
-      <div class="form-group">
-          <label for="genres">Facebook Link</label>
-          {{ form.facebook_link(class_ = 'form-control', placeholder='http://', id=form.state, autofocus = true) }}
-        </div>
-      <input type="submit" value="Create Venue" class="btn btn-primary btn-lg btn-block">
-    </form>
-  </div>
+    </div>
+    {{ wtf.form_field(form.address, autofocus = true) }}
+    {{ wtf.form_field(form.phone, placeholder='+1 (###) ###-####', autofocus = true) }}
+    {{ wtf.form_field(form.genres, autofocus = true) }}
+    {{ wtf.form_field(form.website, placeholder='http://', autofocus = true) }}
+    {{ wtf.form_field(form.image_link, placeholder='http://', autofocus = true) }}
+    {{ wtf.form_field(form.facebook_link, placeholder='http://', autofocus = true) }}
+    {{ wtf.form_field(form.seeking_talent_description, rows='5', autofocus = true) }}
+    {{ form.submit(class_ = 'btn btn-primary btn-lg btn-block') }}
+  </form>
+</div>
 {% endblock %}

@@ -1,9 +1,24 @@
 from datetime import datetime
-from flask_wtf import Form
-from wtforms import StringField, SelectField, SelectMultipleField, DateTimeField
-from wtforms.validators import DataRequired, AnyOf, URL
+from flask_wtf import FlaskForm
+from phonenumbers import NumberParseException
+from wtforms import StringField, SelectField, SelectMultipleField, DateTimeField, TextAreaField, SubmitField
+from wtforms.validators import InputRequired, DataRequired, AnyOf, URL, Email, StopValidation, ValidationError, Length, \
+    Optional
+from wtforms.fields.html5 import EmailField, TelField
+import phonenumbers
 
-class ShowForm(Form):
+
+def validate_phone(self, field):
+    error = ValidationError('Invalid phone number.')
+    try:
+        input_number = phonenumbers.parse(field.data)
+        if not (phonenumbers.is_valid_number(input_number)):
+            raise error
+    except (ValidationError, NumberParseException):
+        raise error
+
+
+class ShowForm(FlaskForm):
     artist_id = StringField(
         'artist_id'
     )
@@ -13,18 +28,19 @@ class ShowForm(Form):
     start_time = DateTimeField(
         'start_time',
         validators=[DataRequired()],
-        default= datetime.today()
+        default=datetime.today()
     )
 
-class VenueForm(Form):
+
+class VenueForm(FlaskForm):
     name = StringField(
-        'name', validators=[DataRequired()]
+        'Name', validators=[DataRequired()]
     )
     city = StringField(
-        'city', validators=[DataRequired()]
+        'City', validators=[DataRequired()]
     )
     state = SelectField(
-        'state', validators=[DataRequired()],
+        'State', validators=[DataRequired()],
         choices=[
             ('AL', 'AL'),
             ('AK', 'AK'),
@@ -80,17 +96,14 @@ class VenueForm(Form):
         ]
     )
     address = StringField(
-        'address', validators=[DataRequired()]
+        'Address', validators=[DataRequired()]
     )
     phone = StringField(
-        'phone'
-    )
-    image_link = StringField(
-        'image_link'
+        'Phone', validators=[DataRequired(), validate_phone]
     )
     genres = SelectMultipleField(
         # TODO implement enum restriction
-        'genres', validators=[DataRequired()],
+        'Genres (Ctrl+Click to select multiple)', validators=[DataRequired()],
         choices=[
             ('Alternative', 'Alternative'),
             ('Blues', 'Blues'),
@@ -113,11 +126,22 @@ class VenueForm(Form):
             ('Other', 'Other'),
         ]
     )
-    facebook_link = StringField(
-        'facebook_link', validators=[URL()]
+    website = StringField(
+        'Website', validators=[Optional(), URL()]
     )
+    facebook_link = StringField(
+        'Facebook Link', validators=[Optional(), URL()]
+    )
+    image_link = StringField(
+        'Photo Link', validators=[Optional(), URL()]
+    )
+    seeking_talent_description = TextAreaField(
+        'Message for Artists'
+    )
+    submit = SubmitField('Create Venue')
 
-class ArtistForm(Form):
+
+class ArtistForm(FlaskForm):
     name = StringField(
         'name', validators=[DataRequired()]
     )
