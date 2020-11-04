@@ -6,6 +6,7 @@
   <form action="" method="post" class="form">
     <h3 class="form-heading">List a new venue <a href="{{ url_for('index') }}" title="Back to homepage"><i
           class="fa fa-home pull-right"></i></a></h3>
+    {{ form.csrf_token }}
     {{ wtf.form_field(form.name, autofocus = true) }}
     <div class="form-group  required">
       <label class="control-label">City & State</label>
@@ -15,7 +16,7 @@
       </div>
     </div>
     {{ wtf.form_field(form.address, autofocus = true) }}
-    {{ wtf.form_field(form.phone, placeholder='+1 (###) ###-####', autofocus = true) }}
+    {{ wtf.form_field(form.phone, placeholder='+1 (515) 555-5555', autofocus = true) }}
     {{ wtf.form_field(form.genres, autofocus = true) }}
     {{ wtf.form_field(form.website, placeholder='http://', autofocus = true) }}
     {{ wtf.form_field(form.image_link, placeholder='http://', autofocus = true) }}

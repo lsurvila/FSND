@@ -15,6 +15,7 @@ from flask_bootstrap import Bootstrap
 import logging
 from logging import Formatter, FileHandler
 from flask_wtf import FlaskForm
+from flask_wtf.csrf import CSRFProtect
 
 #----------------------------------------------------------------------------#
 # App Config.
@@ -23,6 +24,7 @@ from forms import VenueForm, ArtistForm, ShowForm
 
 app = Flask(__name__)
 app.config.from_object('config')
+CSRFProtect(app)
 Bootstrap(app)
 Moment(app)
 db = SQLAlchemy(app)
@@ -247,6 +249,7 @@ def create_venue_submission():
   # form.validate()
   if form.validate_on_submit():
     flash('Venue ' + request.form['name'] + ' was successfully listed!')
+    return render_template('pages/home.html')
   else:
     return render_template('forms/new_venue.html', form=form)
   # TODO: on unsuccessful db insert, flash an error instead.
