@@ -4,6 +4,7 @@
 
 import json
 import os
+import sys
 
 import dateutil.parser
 import babel
@@ -16,6 +17,7 @@ import logging
 from logging import Formatter, FileHandler
 from flask_wtf import FlaskForm
 from flask_wtf.csrf import CSRFProtect
+import sysconfig
 
 # ----------------------------------------------------------------------------#
 # App Config.
@@ -35,18 +37,17 @@ Migrate(app, db)
 # Models.
 # ----------------------------------------------------------------------------#
 
-
 class Show(db.Model):
-    __tablename__ = 'Show'
+    __tablename__ = 'show'
 
     id = db.Column(db.Integer, primary_key=True)
-    artist_id = db.Column(db.Integer, db.ForeignKey('Artist.id'))
-    venue_id = db.Column(db.Integer, db.ForeignKey('Venue.id'))
+    artist_id = db.Column(db.Integer, db.ForeignKey('artist.id'))
+    venue_id = db.Column(db.Integer, db.ForeignKey('venue.id'))
     start_time = db.Column(db.DateTime)
 
 
 class Venue(db.Model):
-    __tablename__ = 'Venue'
+    __tablename__ = 'venue'
 
     id = db.Column(db.Integer, primary_key=True, nullable=False)
     name = db.Column(db.String, nullable=False)
@@ -64,7 +65,7 @@ class Venue(db.Model):
 
 
 class Artist(db.Model):
-    __tablename__ = 'Artist'
+    __tablename__ = 'artist'
 
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String)
@@ -251,12 +252,33 @@ def create_venue_form():
 def create_venue_submission():
     # TODO: insert form data as a new Venue record in the db, instead
     # TODO: modify data to be the data object returned from db insertion
-
     # on successful db insert, flash success
     form = VenueForm()
     if form.validate_on_submit():
-        flash('Venue ' + request.form['name'] + ' was successfully listed!')
-        return render_template('pages/home.html')
+        try:
+            # TODO error handling
+            venue = Venue(name=form.name.data,
+                          city=form.city.data,
+                          state=form.state.data,
+                          address=form.address.data,
+                          phone=form.phone.data,
+                          image_link=form.image_link.data if form.image_link.data else None,
+                          facebook_link=form.facebook_link.data if form.facebook_link.data else None,
+                          genres=form.genres.data,
+                          website=form.website.data if form.website.data else None,
+                          seeking_talent=True if form.seeking_talent_description.data else False,
+                          seeking_description=form.seeking_talent_description.data if form.seeking_talent_description.data else None)
+            db.session.add(venue)
+            db.session.commit()
+            flash('Venue ' + form.name.data + ' was successfully listed!')
+            return render_template('pages/home.html')
+        except Exception:
+            db.session.rollback()
+            print(sys.exc_info())
+            flash('An error occurred. Venue ' + form.name.data + ' could not be listed.')
+            return render_template('pages/home.html')
+        finally:
+            db.session.close()
     else:
         return render_template('forms/new_venue.html', form=form)
     # TODO: on unsuccessful db insert, flash an error instead.

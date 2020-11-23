@@ -99,7 +99,7 @@ class VenueForm(FlaskForm):
         'Address', validators=[DataRequired()]
     )
     phone = StringField(
-        'Phone', validators=[DataRequired(), validate_phone]
+        'Phone', validators=[DataRequired(), validate_phone()]
     )
     genres = SelectMultipleField(
         # TODO implement enum restriction
