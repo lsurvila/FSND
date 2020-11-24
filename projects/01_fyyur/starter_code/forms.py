@@ -1,11 +1,10 @@
 from datetime import datetime
+
+import phonenumbers
 from flask_wtf import FlaskForm
 from phonenumbers import NumberParseException
 from wtforms import StringField, SelectField, SelectMultipleField, DateTimeField, TextAreaField, SubmitField
-from wtforms.validators import InputRequired, DataRequired, AnyOf, URL, Email, StopValidation, ValidationError, Length, \
-    Optional
-from wtforms.fields.html5 import EmailField, TelField
-import phonenumbers
+from wtforms.validators import DataRequired, URL, ValidationError, Optional
 
 
 def validate_phone(self, field):
@@ -99,7 +98,7 @@ class VenueForm(FlaskForm):
         'Address', validators=[DataRequired()]
     )
     phone = StringField(
-        'Phone', validators=[DataRequired(), validate_phone()]
+        'Phone', validators=[DataRequired(), validate_phone]
     )
     genres = SelectMultipleField(
         # TODO implement enum restriction
@@ -143,13 +142,13 @@ class VenueForm(FlaskForm):
 
 class ArtistForm(FlaskForm):
     name = StringField(
-        'name', validators=[DataRequired()]
+        'Name', validators=[DataRequired()]
     )
     city = StringField(
-        'city', validators=[DataRequired()]
+        'City', validators=[DataRequired()]
     )
     state = SelectField(
-        'state', validators=[DataRequired()],
+        'State', validators=[DataRequired()],
         choices=[
             ('AL', 'AL'),
             ('AK', 'AK'),
@@ -205,15 +204,14 @@ class ArtistForm(FlaskForm):
         ]
     )
     phone = StringField(
-        # TODO implement validation logic for state
-        'phone'
+        'Phone', validators=[DataRequired(), validate_phone]
     )
     image_link = StringField(
         'image_link'
     )
     genres = SelectMultipleField(
         # TODO implement enum restriction
-        'genres', validators=[DataRequired()],
+        'Genres (Ctrl+Click to select multiple)', validators=[DataRequired()],
         choices=[
             ('Alternative', 'Alternative'),
             ('Blues', 'Blues'),
@@ -237,8 +235,8 @@ class ArtistForm(FlaskForm):
         ]
     )
     facebook_link = StringField(
-        # TODO implement enum restriction
-        'facebook_link', validators=[URL()]
+        'Facebook Link', validators=[Optional(), URL()]
     )
+    submit = SubmitField('Create Venue')
 
 # TODO IMPLEMENT NEW ARTIST FORM AND NEW SHOW FORM
