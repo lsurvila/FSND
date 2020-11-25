@@ -16,7 +16,10 @@
         </div>
         {{ wtf.form_field(form.phone, placeholder='+1 (515) 555-5555', autofocus = true) }}
         {{ wtf.form_field(form.genres, autofocus = true) }}
+        {{ wtf.form_field(form.website, placeholder='http://', autofocus = true) }}
+        {{ wtf.form_field(form.image_link, placeholder='http://', autofocus = true) }}
         {{ wtf.form_field(form.facebook_link, placeholder='http://', autofocus = true) }}
+        {{ wtf.form_field(form.seeking_show_description, rows='5', autofocus = true) }}
         {{ form.submit(class_ = 'btn btn-primary btn-lg btn-block') }}
     </form>
 </div>
