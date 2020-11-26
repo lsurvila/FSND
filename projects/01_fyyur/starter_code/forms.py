@@ -240,7 +240,7 @@ class ArtistForm(FlaskForm):
     image_link = StringField(
         'Photo Link', validators=[Optional(), URL()]
     )
-    seeking_show_description = TextAreaField(
+    seeking_venue_description = TextAreaField(
         'Message for Venues'
     )
     submit = SubmitField('Create Artist')
