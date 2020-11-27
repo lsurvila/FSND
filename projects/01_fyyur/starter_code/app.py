@@ -2,27 +2,24 @@
 # Imports
 # ----------------------------------------------------------------------------#
 
-import json
+import logging
 import os
 import sys
+from logging import Formatter, FileHandler
 
-import dateutil.parser
 import babel
-from flask import Flask, render_template, request, Response, flash, redirect, url_for
+import dateutil.parser
+from flask import Flask, render_template, request, flash, redirect, url_for
+from flask_bootstrap import Bootstrap
+from flask_migrate import Migrate
 from flask_moment import Moment
 from flask_sqlalchemy import SQLAlchemy
-from flask_migrate import Migrate
-from flask_bootstrap import Bootstrap
-import logging
-from logging import Formatter, FileHandler
-from flask_wtf import FlaskForm
 from flask_wtf.csrf import CSRFProtect
-import sysconfig
+from forms import VenueForm, ArtistForm, ShowForm
 
 # ----------------------------------------------------------------------------#
 # App Config.
 # ----------------------------------------------------------------------------#
-from forms import VenueForm, ArtistForm, ShowForm
 
 app = Flask(__name__)
 app.config.from_object('config')
@@ -250,13 +247,9 @@ def create_venue_form():
 
 @app.route('/venues/create', methods=['POST'])
 def create_venue_submission():
-    # TODO: insert form data as a new Venue record in the db, instead
-    # TODO: modify data to be the data object returned from db insertion
-    # on successful db insert, flash success
     form = VenueForm()
     if form.validate_on_submit():
         try:
-            # TODO error handling
             venue = Venue(name=form.name.data,
                           city=form.city.data,
                           state=form.state.data,
@@ -281,10 +274,6 @@ def create_venue_submission():
             db.session.close()
     else:
         return render_template('forms/new_venue.html', form=form)
-    # TODO: on unsuccessful db insert, flash an error instead.
-    # e.g., flash('An error occurred. Venue ' + data.name + ' could not be listed.')
-    # see: http://flask.pocoo.org/docs/1.0/patterns/flashing/
-    # return render_template('pages/home.html')
 
 
 @app.route('/venues/<venue_id>', methods=['DELETE'])
@@ -480,15 +469,33 @@ def create_artist_form():
 
 @app.route('/artists/create', methods=['POST'])
 def create_artist_submission():
-    # called upon submitting the new artist listing form
-    # TODO: insert form data as a new Venue record in the db, instead
-    # TODO: modify data to be the data object returned from db insertion
-
-    # on successful db insert, flash success
-    flash('Artist ' + request.form['name'] + ' was successfully listed!')
-    # TODO: on unsuccessful db insert, flash an error instead.
-    # e.g., flash('An error occurred. Artist ' + data.name + ' could not be listed.')
-    return render_template('pages/home.html')
+    form = ArtistForm()
+    if form.validate_on_submit():
+        try:
+            artist = Artist(name=form.name.data,
+                            city=form.city.data,
+                            state=form.state.data,
+                            phone=form.phone.data,
+                            image_link=form.image_link.data if form.image_link.data else None,
+                            facebook_link=form.facebook_link.data if form.facebook_link.data else None,
+                            genres=form.genres.data,
+                            website=form.website.data if form.website.data else None,
+                            seeking_venue=True if form.seeking_venue_description.data else False,
+                            seeking_description=form.seeking_venue_description.data
+                            if form.seeking_venue_description.data else None)
+            db.session.add(artist)
+            db.session.commit()
+            flash('Artist ' + form.name.data + ' was successfully listed!')
+            return render_template('pages/home.html')
+        except Exception:
+            db.session.rollback()
+            print(sys.exc_info())
+            flash('An error occurred. Artist ' + form.name.data + ' could not be listed.')
+            return render_template('pages/home.html')
+        finally:
+            db.session.close()
+    else:
+        return render_template('forms/new_artist.html', form=form)
 
 
 #  Shows
