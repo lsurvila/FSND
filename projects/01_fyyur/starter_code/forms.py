@@ -19,16 +19,17 @@ def validate_phone(self, field):
 
 class ShowForm(FlaskForm):
     artist_id = StringField(
-        'artist_id'
+        'Artist ID (ID can be found on the Artist\'s Page)', validators=[DataRequired()]
     )
     venue_id = StringField(
-        'venue_id'
+        'Venue ID (ID can be found on the Venue\'s Page)', validators=[DataRequired()]
     )
     start_time = DateTimeField(
-        'start_time',
+        'Start Time',
         validators=[DataRequired()],
         default=datetime.today()
     )
+    submit = SubmitField('Create Show')
 
 
 class VenueForm(FlaskForm):
