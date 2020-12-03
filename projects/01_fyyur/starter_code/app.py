@@ -37,10 +37,10 @@ Migrate(app, db)
 class Show(db.Model):
     __tablename__ = 'show'
 
-    id = db.Column(db.Integer, primary_key=True)
-    artist_id = db.Column(db.Integer, db.ForeignKey('artist.id'))
-    venue_id = db.Column(db.Integer, db.ForeignKey('venue.id'))
-    start_time = db.Column(db.DateTime)
+    id = db.Column(db.Integer, primary_key=True, nullable=False)
+    artist_id = db.Column(db.Integer, db.ForeignKey('artist.id'), nullable=False)
+    venue_id = db.Column(db.Integer, db.ForeignKey('venue.id'), nullable=False)
+    start_time = db.Column(db.DateTime, nullable=False)
 
 
 class Venue(db.Model):
@@ -554,15 +554,25 @@ def create_shows():
 
 @app.route('/shows/create', methods=['POST'])
 def create_show_submission():
-    # called to create new shows in the db, upon submitting new show listing form
-    # TODO: insert form data as a new Show record in the db, instead
-
-    # on successful db insert, flash success
-    flash('Show was successfully listed!')
-    # TODO: on unsuccessful db insert, flash an error instead.
-    # e.g., flash('An error occurred. Show could not be listed.')
-    # see: http://flask.pocoo.org/docs/1.0/patterns/flashing/
-    return render_template('pages/home.html')
+    form = ShowForm()
+    if form.validate_on_submit():
+        try:
+            show = Show(artist_id=form.artist_id.data,
+                        venue_id=form.venue_id.data,
+                        start_time=form.start_time.data)
+            db.session.add(show)
+            db.session.commit()
+            flash('Show was successfully listed!')
+            return render_template('pages/home.html')
+        except Exception:
+            db.session.rollback()
+            print(sys.exc_info())
+            flash('An error occurred. Show could not be listed.')
+            return render_template('pages/home.html')
+        finally:
+            db.session.close()
+    else:
+        return render_template('forms/new_show.html', form=form)
 
 
 @app.errorhandler(404)
