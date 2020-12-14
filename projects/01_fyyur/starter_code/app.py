@@ -5,6 +5,7 @@
 import logging
 import os
 import sys
+from datetime import datetime
 from logging import Formatter, FileHandler
 
 import babel
@@ -117,18 +118,18 @@ def index():
 
 @app.route('/venues')
 def venues():
-    # TODO: replace with real venues data.
-    #       num_shows should be aggregated based on number of upcoming shows per venue.
     data = []
     distinct_cities = Venue.query.distinct(Venue.city, Venue.state).all()
     for i in distinct_cities:
         venues_data = []
         venues_in_city = Venue.query.filter_by(city=i.city, state=i.state).all()
         for j in venues_in_city:
+            upcoming_shows = Show.query.filter_by(venue_id=j.id).filter(
+                Show.start_time > datetime.utcnow()).count()
             venues_data.append({
                 'id': j.id,
                 'name': j.name,
-                'num_upcoming_shows': 0
+                'num_upcoming_shows': upcoming_shows
             })
         data.append({
             'city': i.city,
