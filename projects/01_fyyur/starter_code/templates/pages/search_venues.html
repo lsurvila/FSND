@@ -8,7 +8,11 @@
 		<a href="/venues/{{ venue.id }}">
 			<i class="fas fa-music"></i>
 			<div class="item">
-				<h5>{{ venue.name }}</h5>
+				{% if venue.num_upcoming_shows > 0 %}
+					<h5>{{ venue.name }} (upcoming shows: {{ venue.num_upcoming_shows }})</h5>
+				{% else %}
+					<h5>{{ venue.name }}</h5>
+				{% endif %}
 			</div>
 		</a>
 	</li>
