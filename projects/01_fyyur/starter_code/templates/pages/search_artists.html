@@ -8,7 +8,11 @@
 		<a href="/artists/{{ artist.id }}">
 			<i class="fas fa-users"></i>
 			<div class="item">
-				<h5>{{ artist.name }}</h5>
+				{% if artist.num_upcoming_shows > 0 %}
+					<h5>{{ artist.name }} (upcoming shows: {{ artist.num_upcoming_shows }})</h5>
+				{% else %}
+					<h5>{{ artist.name }}</h5>
+				{% endif %}
 			</div>
 		</a>
 	</li>
