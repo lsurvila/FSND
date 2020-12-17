@@ -126,12 +126,11 @@ def venues():
         venues_data = []
         venues_in_city = Venue.query.filter_by(city=i.city, state=i.state).all()
         for j in venues_in_city:
-            upcoming_shows = Show.query.filter_by(venue_id=j.id).filter(
-                Show.start_time > datetime.utcnow()).count()
+            upcoming_shows = get_upcoming_shows(j.shows)
             venues_data.append({
                 'id': j.id,
                 'name': j.name,
-                'num_upcoming_shows': upcoming_shows
+                'num_upcoming_shows': len(upcoming_shows)
             })
         data.append({
             'city': i.city,
@@ -149,12 +148,11 @@ def search_venues():
     count = query.count()
     data = []
     for i in results:
-        upcoming_shows = Show.query.filter_by(venue_id=i.id).filter(
-                Show.start_time > datetime.utcnow()).count()
+        upcoming_shows = get_upcoming_shows(i.shows)
         data.append({
             "id": i.id,
             "name": i.name,
-            "num_upcoming_shows": upcoming_shows
+            "num_upcoming_shows": len(upcoming_shows)
         })
     response = {
         "count": count,
@@ -166,8 +164,8 @@ def search_venues():
 @app.route('/venues/<int:venue_id>')
 def show_venue(venue_id):
     venue = Venue.query.get(venue_id)
-    past_shows_data = [i for i in venue.shows if i.start_time <= datetime.utcnow()]
-    upcoming_shows_data = [i for i in venue.shows if i.start_time > datetime.utcnow()]
+    past_shows_data = get_past_shows(venue.shows)
+    upcoming_shows_data = get_upcoming_shows(venue.shows)
     past_shows = []
     for i in past_shows_data:
         past_shows.append({
@@ -262,9 +260,11 @@ def artists():
     data = []
     all_artists = Artist.query.all()
     for i in all_artists:
+        upcoming_shows = get_upcoming_shows(i.shows)
         data.append({
             "id": i.id,
-            "name": i.name
+            "name": i.name,
+            "num_upcoming_shows": len(upcoming_shows)
         })
     return render_template('pages/artists.html', artists=data)
 
@@ -277,12 +277,11 @@ def search_artists():
     count = query.count()
     data = []
     for i in results:
-        upcoming_shows = Show.query.filter_by(artist_id=i.id).filter(
-            Show.start_time > datetime.utcnow()).count()
+        upcoming_shows = get_upcoming_shows(i.shows)
         data.append({
             "id": i.id,
             "name": i.name,
-            "num_upcoming_shows": upcoming_shows
+            "num_upcoming_shows": len(upcoming_shows)
         })
     response = {
         "count": count,
@@ -525,6 +524,14 @@ def not_found_error(error):
 @app.errorhandler(500)
 def server_error(error):
     return render_template('errors/500.html'), 500
+
+
+def get_past_shows(shows_data):
+    return [i for i in shows_data if i.start_time <= datetime.utcnow()]
+
+
+def get_upcoming_shows(shows_data):
+    return [i for i in shows_data if i.start_time > datetime.utcnow()]
 
 
 if not app.debug:
