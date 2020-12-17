@@ -10,7 +10,7 @@ from logging import Formatter, FileHandler
 
 import babel
 import dateutil.parser
-from flask import Flask, render_template, request, flash, redirect, url_for
+from flask import Flask, render_template, request, flash
 from flask_bootstrap import Bootstrap
 from flask_migrate import Migrate
 from flask_moment import Moment
@@ -94,13 +94,13 @@ class Artist(db.Model):
 # Filters.
 # ----------------------------------------------------------------------------#
 
-def format_datetime(value, format='medium'):
+def format_datetime(value, format_param='medium'):
     date = dateutil.parser.parse(value)
-    if format == 'full':
-        format = "EEEE MMMM, d, y 'at' h:mma"
-    elif format == 'medium':
-        format = "EE MM, dd, y h:mma"
-    return babel.dates.format_datetime(date, format)
+    if format_param == 'full':
+        format_param = "EEEE MMMM, d, y 'at' h:mma"
+    elif format_param == 'medium':
+        format_param = "EE MM, dd, y h:mma"
+    return babel.dates.format_datetime(date, format_param)
 
 
 app.jinja_env.filters['datetime'] = format_datetime
@@ -227,7 +227,8 @@ def create_venue_submission():
                           genres=form.genres.data,
                           website=form.website.data if form.website.data else None,
                           seeking_talent=True if form.seeking_talent_description.data else False,
-                          seeking_description=form.seeking_talent_description.data if form.seeking_talent_description.data else None)
+                          seeking_description=form.seeking_talent_description.data
+                          if form.seeking_talent_description.data else None)
             db.session.add(venue)
             db.session.commit()
             flash('Venue ' + form.name.data + ' was successfully listed!')
