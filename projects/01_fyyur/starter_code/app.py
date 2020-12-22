@@ -143,7 +143,7 @@ def venues():
 @app.route('/venues/search', methods=['POST'])
 def search_venues():
     search_term = request.form.get('search_term', '')
-    query = Venue.query.filter(func.lower(Venue.name).contains(func.lower(search_term)))
+    query = Venue.query.filter(Venue.name.ilike(f'%{search_term}%'))
     results = query.all()
     count = query.count()
     data = []
