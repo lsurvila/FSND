@@ -126,7 +126,7 @@ def venues():
         venues_data = []
         venues_in_city = Venue.query.filter_by(city=i.city, state=i.state).all()
         for j in venues_in_city:
-            upcoming_shows = get_upcoming_shows(j.shows)
+            upcoming_shows = get_upcoming_shows(query_shows_of_venue(j.id))
             venues_data.append({
                 'id': j.id,
                 'name': j.name,
@@ -148,7 +148,7 @@ def search_venues():
     count = query.count()
     data = []
     for i in results:
-        upcoming_shows = get_upcoming_shows(i.shows)
+        upcoming_shows = get_upcoming_shows(query_shows_of_venue(i.id))
         data.append({
             "id": i.id,
             "name": i.name,
@@ -164,8 +164,9 @@ def search_venues():
 @app.route('/venues/<int:venue_id>')
 def show_venue(venue_id):
     venue = Venue.query.get(venue_id)
-    past_shows_data = get_past_shows(venue.shows)
-    upcoming_shows_data = get_upcoming_shows(venue.shows)
+    shows_query = query_shows_of_venue(venue_id)
+    past_shows_data = get_past_shows(shows_query)
+    upcoming_shows_data = get_upcoming_shows(shows_query)
     past_shows = []
     for i in past_shows_data:
         past_shows.append({
@@ -251,7 +252,7 @@ def artists():
     data = []
     all_artists = Artist.query.all()
     for i in all_artists:
-        upcoming_shows = get_upcoming_shows(i.shows)
+        upcoming_shows = get_upcoming_shows(query_shows_of_artist(i.id))
         data.append({
             "id": i.id,
             "name": i.name,
@@ -268,7 +269,7 @@ def search_artists():
     count = query.count()
     data = []
     for i in results:
-        upcoming_shows = get_upcoming_shows(i.shows)
+        upcoming_shows = get_upcoming_shows(query_shows_of_artist(i.id))
         data.append({
             "id": i.id,
             "name": i.name,
@@ -284,8 +285,9 @@ def search_artists():
 @app.route('/artists/<int:artist_id>')
 def show_artist(artist_id):
     artist = Artist.query.get(artist_id)
-    past_shows_data = get_past_shows(artist.shows)
-    upcoming_shows_data = get_upcoming_shows(artist.shows)
+    shows_query = query_shows_of_artist(artist_id)
+    past_shows_data = get_past_shows(shows_query)
+    upcoming_shows_data = get_upcoming_shows(shows_query)
     past_shows = []
     for i in past_shows_data:
         past_shows.append({
@@ -421,12 +423,20 @@ def server_error(error):
     return render_template('errors/500.html'), 500
 
 
-def get_past_shows(shows_data):
-    return [i for i in shows_data if i.start_time <= datetime.utcnow()]
+def query_shows_of_venue(venue_id):
+    return db.session.query(Show).join(Venue).filter(Show.venue_id == venue_id)
 
 
-def get_upcoming_shows(shows_data):
-    return [i for i in shows_data if i.start_time > datetime.utcnow()]
+def query_shows_of_artist(artist_id):
+    return db.session.query(Show).join(Artist).filter(Show.artist_id == artist_id)
+
+
+def get_past_shows(shows_query):
+    return shows_query.filter(Show.start_time <= datetime.utcnow()).all()
+
+
+def get_upcoming_shows(shows_query):
+    return shows_query.filter(Show.start_time > datetime.utcnow()).all()
 
 
 def datetime_to_string(date_time):
