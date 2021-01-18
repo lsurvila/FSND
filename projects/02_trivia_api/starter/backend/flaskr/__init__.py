@@ -1,6 +1,6 @@
 from flask import Flask
 
-from backend.models import setup_db
+from models import setup_db
 
 QUESTIONS_PER_PAGE = 10
 
@@ -9,6 +9,11 @@ def create_app():
     # create and configure the app
     app = Flask(__name__)
     setup_db(app)
+
+    # TODO remove
+    @app.route('/')
+    def index():
+        return "hello"
 
     '''
   @TODO: Set up CORS. Allow '*' for origins. Delete the sample route after completing the TODOs
@@ -95,3 +100,7 @@ def create_app():
   '''
 
     return app
+
+
+# To run from PyCharm
+create_app()
