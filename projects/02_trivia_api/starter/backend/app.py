@@ -33,6 +33,14 @@ def get_questions():
     return get_questions_response(questions, current_category)
 
 
+@app.route('/questions', methods=['POST'])
+def get_questions_by_search_query():
+    search_query = request.get_json().get("searchTerm")
+    questions = Question.query.filter(Question.question.ilike('%{}%'.format(search_query))).all()
+    current_category = None
+    return get_questions_response(questions, current_category)
+
+
 @app.route('/categories/<int:category_id>/questions', methods=['GET'])
 def get_questions_of_category(category_id):
     questions = Question.query.filter(Question.category == category_id).all()
