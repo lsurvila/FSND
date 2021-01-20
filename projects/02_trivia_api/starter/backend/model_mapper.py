@@ -28,6 +28,12 @@ def map_question(question):
     }
 
 
+def map_categories_response(categories):
+    return {
+        'categories': map_categories(categories)
+    }
+
+
 def map_categories(categories):
     return dict(map_category(category) for category in categories)
 

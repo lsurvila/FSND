@@ -3,7 +3,7 @@ import os
 from flask import Flask, jsonify, request
 from flask_cors import CORS
 
-from model_mapper import map_questions_response, map_category
+from model_mapper import map_questions_response, map_category, map_categories_response
 from models import Question, Category, setup_db
 
 app = Flask(__name__)
@@ -39,6 +39,12 @@ def get_questions_by_search_query():
     questions = Question.query.filter(Question.question.ilike('%{}%'.format(search_query))).all()
     current_category = None
     return get_questions_response(questions, current_category)
+
+
+@app.route('/categories', methods=['GET'])
+def get_categories():
+    categories = Category.query.all()
+    return jsonify(map_categories_response(categories))
 
 
 @app.route('/categories/<int:category_id>/questions', methods=['GET'])
