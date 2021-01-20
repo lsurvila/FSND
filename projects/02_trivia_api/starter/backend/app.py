@@ -12,13 +12,6 @@ CORS(app)
 setup_db(app)
 
 
-@app.after_request
-def after_request(response):
-    response.headers.add('Access-Control-Allow-Headers', 'Content-Type,Authorization,true')
-    response.headers.add('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS')
-    return response
-
-
 '''
 @TODO:
 Create an endpoint to handle GET requests for questions,
@@ -43,6 +36,12 @@ def get_questions():
     data = map_questions_response(questions, questions_per_page, current_page, categories, current_category)
     return jsonify(data)
 
+
+@app.after_request
+def after_request(response):
+    response.headers.add('Access-Control-Allow-Headers', 'Content-Type,Authorization,true')
+    response.headers.add('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS')
+    return response
 
 '''
 @TODO:
