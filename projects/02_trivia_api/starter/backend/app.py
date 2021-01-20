@@ -1,16 +1,15 @@
 import os
 
-from flask import Flask, jsonify
+from flask import Flask, jsonify, request
 from flask_cors import CORS
 
-from models import db
-
-QUESTIONS_PER_PAGE = 10
+from model_mapper import map_questions_response
+from models import Question, Category, setup_db
 
 app = Flask(__name__)
 app.config.from_object('config')
 CORS(app)
-db.init_app(app)
+setup_db(app)
 
 
 @app.after_request
@@ -36,12 +35,13 @@ Clicking on the page numbers should update the questions.
 
 @app.route('/questions', methods=['GET'])
 def get_questions():
-    return jsonify({
-        'questions': [],
-        'totalQuestions': 0,
-        'categories': {},
-        'current_category': {}
-    })
+    questions = Question.query.all()
+    questions_per_page = 10
+    current_page = request.args.get('page', 1, type=int)
+    categories = Category.query.all()
+    current_category = None
+    data = map_questions_response(questions, questions_per_page, current_page, categories, current_category)
+    return jsonify(data)
 
 
 '''
