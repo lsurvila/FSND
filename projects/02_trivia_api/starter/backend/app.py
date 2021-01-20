@@ -1,6 +1,6 @@
 import os
 
-from flask import Flask
+from flask import Flask, jsonify
 from flask_cors import CORS
 
 from models import db
@@ -13,18 +13,36 @@ CORS(app)
 db.init_app(app)
 
 
-@app.route('/')
-def index():
-    return "hello"
+@app.after_request
+def after_request(response):
+    response.headers.add('Access-Control-Allow-Headers', 'Content-Type,Authorization,true')
+    response.headers.add('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS')
+    return response
 
 
 '''
-@TODO: Set up CORS. Allow '*' for origins. Delete the sample route after completing the TODOs
+@TODO:
+Create an endpoint to handle GET requests for questions,
+including pagination (every 10 questions).
+This endpoint should return a list of questions,
+number of total questions, current category, categories.
+
+TEST: At this point, when you start the application
+you should see questions and categories generated,
+ten questions per page and pagination at the bottom of the screen for three pages.
+Clicking on the page numbers should update the questions.
 '''
 
-'''
-@TODO: Use the after_request decorator to set Access-Control-Allow
-'''
+
+@app.route('/questions', methods=['GET'])
+def get_questions():
+    return jsonify({
+        'questions': [],
+        'totalQuestions': 0,
+        'categories': {},
+        'current_category': {}
+    })
+
 
 '''
 @TODO:
@@ -101,7 +119,6 @@ and shown whether they were correct or not.
 Create error handlers for all expected errors
 including 404 and 422.
 '''
-
 
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))

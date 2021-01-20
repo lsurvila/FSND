@@ -4,12 +4,6 @@ from sqlalchemy import Column, String, Integer
 db = SQLAlchemy()
 
 
-'''
-Question
-
-'''
-
-
 def update():
     db.session.commit()
 
@@ -45,12 +39,6 @@ class Question(db.Model):
             'category': self.category,
             'difficulty': self.difficulty
         }
-
-
-'''
-Category
-
-'''
 
 
 class Category(db.Model):
