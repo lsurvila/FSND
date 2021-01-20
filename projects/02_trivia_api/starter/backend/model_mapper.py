@@ -40,3 +40,9 @@ def map_categories(categories):
 
 def map_category(category):
     return category.id, category.type.lower()
+
+
+def map_success():
+    return {
+        'success': True
+    }

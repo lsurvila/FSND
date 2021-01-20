@@ -3,7 +3,7 @@ import os
 from flask import Flask, jsonify, request
 from flask_cors import CORS
 
-from model_mapper import map_questions_response, map_category, map_categories_response
+from model_mapper import map_questions_response, map_category, map_categories_response, map_success
 from models import Question, Category, setup_db
 
 app = Flask(__name__)
@@ -34,8 +34,25 @@ def get_questions():
 
 
 @app.route('/questions', methods=['POST'])
-def get_questions_by_search_query():
+def post_questions():
     search_query = request.get_json().get("searchTerm")
+    if search_query:
+        return get_questions_by_search_query(search_query)
+    else:
+        post_question()
+        return jsonify(map_success())
+
+
+def post_question():
+    question = request.get_json().get("question")
+    answer = request.get_json().get("answer")
+    difficulty = request.get_json().get("difficulty")
+    category = request.get_json().get("category")
+    question_db = Question(question, answer, difficulty, category)
+    question_db.insert()
+
+
+def get_questions_by_search_query(search_query):
     questions = Question.query.filter(Question.question.ilike('%{}%'.format(search_query))).all()
     current_category = None
     return get_questions_response(questions, current_category)
