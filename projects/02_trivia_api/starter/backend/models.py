@@ -35,15 +35,6 @@ class Question(db.Model):
         db.session.delete(self)
         db.session.commit()
 
-    def format(self):
-        return {
-            'id': self.id,
-            'question': self.question,
-            'answer': self.answer,
-            'category': self.category,
-            'difficulty': self.difficulty
-        }
-
 
 class Category(db.Model):
     __tablename__ = 'categories'
@@ -53,9 +44,3 @@ class Category(db.Model):
 
     def __init__(self, model_type):
         self.type = model_type
-
-    def format(self):
-        return {
-            'id': self.id,
-            'type': self.type
-        }

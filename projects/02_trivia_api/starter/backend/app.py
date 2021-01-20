@@ -29,11 +29,10 @@ Clicking on the page numbers should update the questions.
 @app.route('/questions', methods=['GET'])
 def get_questions():
     questions = Question.query.all()
-    questions_per_page = 10
     current_page = request.args.get('page', 1, type=int)
     categories = Category.query.all()
     current_category = None
-    data = map_questions_response(questions, questions_per_page, current_page, categories, current_category)
+    data = map_questions_response(questions, current_page, categories, current_category)
     return jsonify(data)
 
 
