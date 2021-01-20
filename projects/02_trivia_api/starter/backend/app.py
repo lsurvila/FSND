@@ -3,7 +3,7 @@ import os
 from flask import Flask, jsonify, request
 from flask_cors import CORS
 
-from model_mapper import map_questions_response
+from model_mapper import map_questions_response, map_category
 from models import Question, Category, setup_db
 
 app = Flask(__name__)
@@ -29,11 +29,21 @@ Clicking on the page numbers should update the questions.
 @app.route('/questions', methods=['GET'])
 def get_questions():
     questions = Question.query.all()
+    current_category = None
+    return get_questions_response(questions, current_category)
+
+
+@app.route('/categories/<int:category_id>/questions', methods=['GET'])
+def get_questions_of_category(category_id):
+    questions = Question.query.filter(Question.category == category_id).all()
+    current_category = map_category(Category.query.get(category_id))
+    return get_questions_response(questions, current_category)
+
+
+def get_questions_response(questions, current_category):
     current_page = request.args.get('page', 1, type=int)
     categories = Category.query.all()
-    current_category = None
-    data = map_questions_response(questions, current_page, categories, current_category)
-    return jsonify(data)
+    return jsonify(map_questions_response(questions, current_page, categories, current_category))
 
 
 @app.after_request
@@ -41,6 +51,7 @@ def after_request(response):
     response.headers.add('Access-Control-Allow-Headers', 'Content-Type,Authorization,true')
     response.headers.add('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS')
     return response
+
 
 '''
 @TODO:
