@@ -3,7 +3,8 @@ import os
 from flask import Flask, jsonify, request
 from flask_cors import CORS
 
-from model_mapper import map_questions_response, map_category, map_categories_response, map_success
+from model_mapper import map_questions_response, map_category, map_categories_response, map_success, \
+    map_quizzes_response
 from models import Question, Category, setup_db
 
 app = Flask(__name__)
@@ -37,10 +38,11 @@ def delete_questions(question_id):
 
 
 def post_question():
-    question = request.get_json().get("question")
-    answer = request.get_json().get("answer")
-    difficulty = request.get_json().get("difficulty")
-    category = request.get_json().get("category")
+    request_json = request.get_json()
+    question = request_json.get("question")
+    answer = request_json.get("answer")
+    difficulty = request_json.get("difficulty")
+    category = request_json.get("category")
     question_db = Question(question, answer, difficulty, category)
     question_db.insert()
 
@@ -59,7 +61,7 @@ def get_categories():
 
 @app.route('/categories/<int:category_id>/questions', methods=['GET'])
 def get_questions_of_category(category_id):
-    questions = Question.query.filter(Question.category == category_id).all()
+    questions = questions_of_category_query(category_id).all()
     current_category = map_category(Category.query.get(category_id))
     return get_questions_response(questions, current_category)
 
@@ -68,6 +70,20 @@ def get_questions_response(questions, current_category):
     current_page = request.args.get('page', 1, type=int)
     categories = Category.query.all()
     return jsonify(map_questions_response(questions, current_page, categories, current_category))
+
+
+@app.route('/quizzes', methods=['POST'])
+def post_quizzes():
+    request_json = request.get_json()
+    previous_question_ids = request_json.get("previous_questions")
+    quiz_category = request_json.get("quiz_category")
+    available_questions = questions_of_category_query(quiz_category["id"])\
+        .filter(Question.id.notin_(previous_question_ids)).all()
+    return jsonify(map_quizzes_response(available_questions))
+
+
+def questions_of_category_query(category_id):
+    return Question.query if category_id == 0 else Question.query.filter(Question.category == category_id)
 
 
 @app.after_request

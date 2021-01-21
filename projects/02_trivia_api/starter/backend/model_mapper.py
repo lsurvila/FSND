@@ -1,4 +1,4 @@
-
+import random
 
 QUESTIONS_PER_PAGE = 10
 
@@ -45,4 +45,10 @@ def map_category(category):
 def map_success():
     return {
         'success': True
+    }
+
+
+def map_quizzes_response(available_questions):
+    return {
+        'question': map_question(random.choice(available_questions)) if available_questions else None
     }
