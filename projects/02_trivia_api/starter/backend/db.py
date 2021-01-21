@@ -4,12 +4,8 @@ from sqlalchemy import Column, String, Integer
 db = SQLAlchemy()
 
 
-def setup_db(app):
+def init_db(app):
     db.init_app(app)
-
-
-def update():
-    db.session.commit()
 
 
 class Question(db.Model):
