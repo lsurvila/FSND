@@ -5,9 +5,9 @@ from db import init_db
 from routes import init_routes
 
 
-def create_app():
+def create_app(config_file):
     app = Flask(__name__)
-    app.config.from_object('config')
+    app.config.from_object(config_file)
     init_db(app)
     init_routes(app)
     CORS(app)
@@ -15,7 +15,7 @@ def create_app():
 
 
 if __name__ == '__main__':
-    create_app().run()
+    create_app('config').run()
 
 '''
 @TODO:
