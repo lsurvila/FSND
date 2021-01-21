@@ -6,7 +6,7 @@ address = get_localhost_address()
 port = 5001
 db_user = 'postgres'
 db_psw = 'postgres'
-db_port = 5433
+db_port = 5432
 db_name = 'trivia_test'
 
 DEBUG = True
