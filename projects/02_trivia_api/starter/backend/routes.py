@@ -74,3 +74,19 @@ def init_routes(app):
         response.headers.add('Access-Control-Allow-Headers', 'Content-Type,Authorization,true')
         response.headers.add('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS')
         return response
+
+    @app.errorhandler(400)
+    def bad_request():
+        return jsonify(error="bad request"), 400
+
+    @app.errorhandler(404)
+    def not_found():
+        return jsonify(error="resource not found"), 404
+
+    @app.errorhandler(405)
+    def not_allowed():
+        return jsonify(error="method not allowed"), 405
+
+    @app.errorhandler(422)
+    def unprocessable():
+        return jsonify(error="unprocessable"), 422
