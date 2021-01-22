@@ -14,7 +14,7 @@ def init_routes(app):
 
     @app.route('/questions', methods=['POST'])
     def post_questions():
-        search_query = request.get_json().get("searchTerm")
+        search_query = request.get_json().get('searchTerm')
         if search_query:
             return get_questions_by_search_query(search_query)
         else:
@@ -23,10 +23,10 @@ def init_routes(app):
 
     def post_question():
         request_json = request.get_json()
-        question = request_json.get("question")
-        answer = request_json.get("answer")
-        difficulty = request_json.get("difficulty")
-        category = request_json.get("category")
+        question = request_json.get('question')
+        answer = request_json.get('answer')
+        difficulty = request_json.get('difficulty')
+        category = request_json.get('category')
         question_db = Question(question, answer, difficulty, category)
         question_db.insert()
 
@@ -60,9 +60,9 @@ def init_routes(app):
     @app.route('/quizzes', methods=['POST'])
     def post_quizzes():
         request_json = request.get_json()
-        previous_question_ids = request_json.get("previous_questions")
-        quiz_category = request_json.get("quiz_category")
-        available_questions = questions_of_category_query(quiz_category["id"]) \
+        previous_question_ids = request_json.get('previous_questions')
+        quiz_category = request_json.get('quiz_category')
+        available_questions = questions_of_category_query(quiz_category['id']) \
             .filter(Question.id.notin_(previous_question_ids)).all()
         return jsonify(map_quizzes_response(available_questions))
 
