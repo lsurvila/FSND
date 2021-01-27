@@ -13,18 +13,11 @@ class TriviaTestCase(unittest.TestCase):
         with self.app.app_context():
             self.db = db
             self.reset_db()
-            self.db.create_all()
-
-    def tearDown(self):
-        with self.app.app_context():
-            self.reset_db()
-
-    def reset_db(self):
-        self.db.session.close()
-        self.db.drop_all()
 
     def test_get_questions_page_1(self):
-        self.insert_test_data_to_database()
+        with self.app.app_context():
+            self.insert_categories_to_database()
+            self.insert_questions_to_database()
 
         res = self.client().get('/questions')
 
@@ -40,7 +33,8 @@ class TriviaTestCase(unittest.TestCase):
         assert data['current_category'] is None
 
     def test_get_questions_page_2(self):
-        self.insert_test_data_to_database()
+        with self.app.app_context():
+            self.insert_data_to_db()
 
         res = self.client().get('/questions', query_string={'page': '2'})
 
@@ -55,7 +49,37 @@ class TriviaTestCase(unittest.TestCase):
         assert data['categories'] == {'1': 'category', '2': 'category2'}
         assert data['current_category'] is None
 
-    def insert_test_data_to_database(self):
+    # valid case after user deletes all questions
+    def test_get_questions_no_questions_with_categories(self):
+        self.insert_categories_to_database()
+
+        res = self.client().get('/questions')
+
+        data = json.loads(res.data)
+        assert res.status_code == 200
+        assert len(data['questions']) == 0
+        assert data['total_questions'] == 0
+        assert data['categories'] == {'1': 'category', '2': 'category2'}
+        assert data['current_category'] is None
+
+    def reset_db(self):
+        with self.app.app_context():
+            self.db.session.close()
+            self.db.drop_all()
+            self.db.create_all()
+
+    def insert_data_to_db(self):
+        with self.app.app_context():
+            self.insert_categories_to_database()
+            self.insert_questions_to_database()
+
+    def insert_categories_to_database(self):
+        with self.app.app_context():
+            self.db.session.add(Category('category'))
+            self.db.session.add(Category('category2'))
+            self.db.session.commit()
+
+    def insert_questions_to_database(self):
         with self.app.app_context():
             self.db.session.add(Question('question', 'answer', 'category', 2))
             self.db.session.add(Question('question2', 'answer', 'category', 2))
@@ -69,8 +93,6 @@ class TriviaTestCase(unittest.TestCase):
             self.db.session.add(Question('question10', 'answer', 'category', 2))
             self.db.session.add(Question('question11', 'hello', 'category2', 5))
             self.db.session.add(Question('questionX', 'answerY', 'category', 2))
-            self.db.session.add(Category('category'))
-            self.db.session.add(Category('category2'))
             self.db.session.commit()
 
 
