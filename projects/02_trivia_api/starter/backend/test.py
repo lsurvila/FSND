@@ -62,6 +62,13 @@ class TriviaTestCase(unittest.TestCase):
         assert data['categories'] == {'1': 'category', '2': 'category2'}
         assert data['current_category'] is None
 
+    def test_get_questions_no_questions_no_categories(self):
+        res = self.client().get('/questions')
+
+        data = json.loads(res.data)
+        assert res.status_code == 404
+        assert data['error'] == 'resource not found'
+
     def reset_db(self):
         with self.app.app_context():
             self.db.session.close()

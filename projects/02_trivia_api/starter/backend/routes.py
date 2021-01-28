@@ -1,4 +1,4 @@
-from flask import request, jsonify
+from flask import request, jsonify, abort
 
 from model_mapper import map_success, map_categories_response, map_category, map_questions_response, \
     map_quizzes_response
@@ -10,7 +10,10 @@ def init_routes(app):
     def get_questions():
         questions = Question.query.all()
         current_category = None
-        return get_questions_response(questions, current_category)
+        response = get_questions_response(questions, current_category)
+        if not response['categories']:
+            abort(404)
+        return jsonify(response)
 
     @app.route('/questions', methods=['POST'])
     def post_questions():
@@ -33,7 +36,7 @@ def init_routes(app):
     def get_questions_by_search_query(search_query):
         questions = Question.query.filter(Question.question.ilike('%{}%'.format(search_query))).all()
         current_category = None
-        return get_questions_response(questions, current_category)
+        return jsonify(get_questions_response(questions, current_category))
 
     @app.route('/questions/<int:question_id>', methods=['DELETE'])
     def delete_questions(question_id):
@@ -50,12 +53,12 @@ def init_routes(app):
     def get_questions_of_category(category_id):
         questions = questions_of_category_query(category_id).all()
         current_category = map_category(Category.query.get(category_id))
-        return get_questions_response(questions, current_category)
+        return jsonify(get_questions_response(questions, current_category))
 
     def get_questions_response(questions, current_category):
         current_page = request.args.get('page', 1, type=int)
         categories = Category.query.all()
-        return jsonify(map_questions_response(questions, current_page, categories, current_category))
+        return map_questions_response(questions, current_page, categories, current_category)
 
     @app.route('/quizzes', methods=['POST'])
     def post_quizzes():
@@ -76,17 +79,17 @@ def init_routes(app):
         return response
 
     @app.errorhandler(400)
-    def bad_request():
+    def bad_request(error):
         return jsonify(error="bad request"), 400
 
     @app.errorhandler(404)
-    def not_found():
+    def not_found(error):
         return jsonify(error="resource not found"), 404
 
     @app.errorhandler(405)
-    def not_allowed():
+    def not_allowed(error):
         return jsonify(error="method not allowed"), 405
 
     @app.errorhandler(422)
-    def unprocessable():
+    def unprocessable(error):
         return jsonify(error="unprocessable"), 422
