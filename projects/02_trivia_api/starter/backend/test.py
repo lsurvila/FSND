@@ -12,70 +12,88 @@ class TriviaTestCase(unittest.TestCase):
         self.client = self.app.test_client
         with self.app.app_context():
             self.db = db
-            self.reset_db()
+            self.reset_database()
 
     def test_get_questions_page_1(self):
         with self.app.app_context():
             self.insert_categories_to_database()
             self.insert_questions_to_database()
 
-        res = self.client().get('/questions')
+            res = self.client().get('/questions')
 
-        data = json.loads(res.data)
-        assert res.status_code == 200
-        assert len(data['questions']) == 10
-        assert data['questions'][0] == {'id': 1, 'question': 'question', 'answer': 'answer', 'category': 'category',
-                                        'difficulty': 2}
-        assert data['questions'][9] == {'id': 10, 'question': 'question10', 'answer': 'answer', 'category': 'category',
-                                        'difficulty': 2}
-        assert data['total_questions'] == 12
-        assert data['categories'] == {'1': 'category', '2': 'category2'}
-        assert data['current_category'] is None
+            data = json.loads(res.data)
+            assert res.status_code == 200
+            assert len(data['questions']) == 10
+            assert data['questions'][0] == {'id': 1, 'question': 'question', 'answer': 'answer', 'category': 'category',
+                                            'difficulty': 2}
+            assert data['questions'][9] == {'id': 10, 'question': 'question10', 'answer': 'answer',
+                                            'category': 'category', 'difficulty': 2}
+            assert data['total_questions'] == 12
+            assert data['categories'] == {'1': 'category', '2': 'category2'}
+            assert data['current_category'] is None
 
     def test_get_questions_page_2(self):
         with self.app.app_context():
-            self.insert_data_to_db()
+            self.insert_data_to_database()
 
-        res = self.client().get('/questions', query_string={'page': '2'})
+            res = self.client().get('/questions', query_string={'page': '2'})
 
-        data = json.loads(res.data)
-        assert res.status_code == 200
-        assert len(data['questions']) == 2
-        assert data['questions'][0] == {'id': 11, 'question': 'question11', 'answer': 'hello', 'category': 'category2',
-                                        'difficulty': 5}
-        assert data['questions'][1] == {'id': 12, 'question': 'questionX', 'answer': 'answerY', 'category': 'category',
-                                        'difficulty': 2}
-        assert data['total_questions'] == 12
-        assert data['categories'] == {'1': 'category', '2': 'category2'}
-        assert data['current_category'] is None
+            data = json.loads(res.data)
+            assert res.status_code == 200
+            assert len(data['questions']) == 2
+            assert data['questions'][0] == {'id': 11, 'question': 'question11', 'answer': 'hello',
+                                            'category': 'category2', 'difficulty': 5}
+            assert data['questions'][1] == {'id': 12, 'question': 'questionX', 'answer': 'answerY',
+                                            'category': 'category', 'difficulty': 2}
+            assert data['total_questions'] == 12
+            assert data['categories'] == {'1': 'category', '2': 'category2'}
+            assert data['current_category'] is None
 
     # valid case after user deletes all questions
     def test_get_questions_no_questions_with_categories(self):
-        self.insert_categories_to_database()
+        with self.app.app_context():
+            self.insert_categories_to_database()
 
-        res = self.client().get('/questions')
+            res = self.client().get('/questions')
 
-        data = json.loads(res.data)
-        assert res.status_code == 200
-        assert len(data['questions']) == 0
-        assert data['total_questions'] == 0
-        assert data['categories'] == {'1': 'category', '2': 'category2'}
-        assert data['current_category'] is None
+            data = json.loads(res.data)
+            assert res.status_code == 200
+            assert len(data['questions']) == 0
+            assert data['total_questions'] == 0
+            assert data['categories'] == {'1': 'category', '2': 'category2'}
+            assert data['current_category'] is None
 
     def test_get_questions_no_questions_no_categories(self):
-        res = self.client().get('/questions')
+        with self.app.app_context():
+            res = self.client().get('/questions')
 
-        data = json.loads(res.data)
-        assert res.status_code == 404
-        assert data['error'] == 'resource not found'
+            data = json.loads(res.data)
+            assert res.status_code == 404
+            assert data['error'] == 'resource not found'
 
-    def reset_db(self):
+    def test_post_questions_search(self):
+        with self.app.app_context():
+            self.insert_data_to_database()
+            request_json = {'searchTerm': 'x'}
+
+            res = self.client().post('/questions', json=request_json)
+
+            data = json.loads(res.data)
+            assert res.status_code == 200
+            assert len(data['questions']) == 1
+            assert data['questions'][0] == {'id': 12, 'question': 'questionX', 'answer': 'answerY',
+                                            'category': 'category', 'difficulty': 2}
+            assert data['total_questions'] == 1
+            assert data['categories'] == {'1': 'category', '2': 'category2'}
+            assert data['current_category'] is None
+
+    def reset_database(self):
         with self.app.app_context():
             self.db.session.close()
             self.db.drop_all()
             self.db.create_all()
 
-    def insert_data_to_db(self):
+    def insert_data_to_database(self):
         with self.app.app_context():
             self.insert_categories_to_database()
             self.insert_questions_to_database()
