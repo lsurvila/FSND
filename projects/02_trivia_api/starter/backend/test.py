@@ -87,6 +87,20 @@ class TriviaTestCase(unittest.TestCase):
             assert data['categories'] == {'1': 'category', '2': 'category2'}
             assert data['current_category'] is None
 
+    def test_post_questions_search_no_results(self):
+        with self.app.app_context():
+            self.insert_data_to_database()
+            request_json = {'searchTerm': 'y'}
+
+            res = self.client().post('/questions', json=request_json)
+
+            data = json.loads(res.data)
+            assert res.status_code == 200
+            assert len(data['questions']) == 0
+            assert data['total_questions'] == 0
+            assert data['categories'] == {'1': 'category', '2': 'category2'}
+            assert data['current_category'] is None
+
     def reset_database(self):
         with self.app.app_context():
             self.db.session.close()
