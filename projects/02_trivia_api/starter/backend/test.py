@@ -101,6 +101,26 @@ class TriviaTestCase(unittest.TestCase):
             assert data['categories'] == {'1': 'category', '2': 'category2'}
             assert data['current_category'] is None
 
+    def test_post_questions_add_new_question(self):
+        with self.app.app_context():
+            self.insert_data_to_database()
+            request_json = {
+                'question': 'new question',
+                'answer': 'new answer',
+                'difficulty': 4,
+                'category': 'category2'
+            }
+
+            res = self.client().post('/questions', json=request_json)
+
+            data = json.loads(res.data)
+            assert data['success']
+            question_in_db = self.db.session.query(Question).filter(Question.question == 'new question').all()[0]
+            assert question_in_db.question == 'new question'
+            assert question_in_db.answer == 'new answer'
+            assert question_in_db.difficulty == 4
+            assert question_in_db.category == 'category2'
+
     def reset_database(self):
         with self.app.app_context():
             self.db.session.close()

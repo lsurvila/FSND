@@ -30,7 +30,7 @@ def init_routes(app):
         answer = request_json.get('answer')
         difficulty = request_json.get('difficulty')
         category = request_json.get('category')
-        question_db = Question(question, answer, difficulty, category)
+        question_db = Question(question, answer, category, difficulty)
         question_db.insert()
 
     def get_questions_by_search_query(search_query):
