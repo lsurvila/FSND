@@ -11,27 +11,28 @@ def init_routes(app):
         questions = Question.query.all()
         current_category = None
         response = get_questions_response(questions, current_category)
-        if not response['categories']:
+        if response['categories']:
+            return jsonify(response)
+        else:
             abort(404)
-        return jsonify(response)
 
     @app.route('/questions', methods=['POST'])
     def post_questions():
+        request_json = request.get_json()
         search_query = request.get_json().get('searchTerm')
         if search_query:
             return get_questions_by_search_query(search_query)
         else:
-            post_question()
-            return jsonify(map_success())
-
-    def post_question():
-        request_json = request.get_json()
-        question = request_json.get('question')
-        answer = request_json.get('answer')
-        difficulty = request_json.get('difficulty')
-        category = request_json.get('category')
-        question_db = Question(question, answer, category, difficulty)
-        question_db.insert()
+            question = request_json.get('question')
+            answer = request_json.get('answer')
+            difficulty = request_json.get('difficulty')
+            category = request_json.get('category')
+            if question and answer:
+                question_db = Question(question, answer, category, difficulty)
+                question_db.insert()
+                return jsonify(map_success())
+            else:
+                abort(400)
 
     def get_questions_by_search_query(search_query):
         questions = Question.query.filter(Question.question.ilike('%{}%'.format(search_query))).all()

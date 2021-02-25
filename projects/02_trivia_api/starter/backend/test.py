@@ -114,12 +114,45 @@ class TriviaTestCase(unittest.TestCase):
             res = self.client().post('/questions', json=request_json)
 
             data = json.loads(res.data)
+            assert res.status_code == 200
             assert data['success']
             question_in_db = self.db.session.query(Question).filter(Question.question == 'new question').all()[0]
             assert question_in_db.question == 'new question'
             assert question_in_db.answer == 'new answer'
             assert question_in_db.difficulty == 4
             assert question_in_db.category == 'category2'
+
+    def test_post_questions_add_new_question_with_no_question(self):
+        with self.app.app_context():
+            self.insert_data_to_database()
+            request_json = {
+                'question': '',
+                'answer': 'new answer',
+                'difficulty': 4,
+                'category': 'category2'
+            }
+
+            res = self.client().post('/questions', json=request_json)
+
+            data = json.loads(res.data)
+            assert res.status_code == 400
+            assert data['error'] == 'bad request'
+
+    def test_post_questions_add_new_question_with_no_answer(self):
+        with self.app.app_context():
+            self.insert_data_to_database()
+            request_json = {
+                'question': 'new question',
+                'answer': '',
+                'difficulty': 4,
+                'category': 'category2'
+            }
+
+            res = self.client().post('/questions', json=request_json)
+
+            data = json.loads(res.data)
+            assert res.status_code == 400
+            assert data['error'] == 'bad request'
 
     def reset_database(self):
         with self.app.app_context():
