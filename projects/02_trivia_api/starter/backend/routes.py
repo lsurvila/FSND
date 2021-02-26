@@ -41,9 +41,12 @@ def init_routes(app):
 
     @app.route('/questions/<int:question_id>', methods=['DELETE'])
     def delete_questions(question_id):
-        question = Question.query.get(question_id)
-        question.delete()
-        return jsonify(map_success())
+        try:
+            question = Question.query.get(question_id)
+            question.delete()
+            return jsonify(map_success())
+        except:
+            abort(422)
 
     @app.route('/categories', methods=['GET'])
     def get_categories():

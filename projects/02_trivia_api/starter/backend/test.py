@@ -154,6 +154,30 @@ class TriviaTestCase(unittest.TestCase):
             assert res.status_code == 400
             assert data['error'] == 'bad request'
 
+    def test_delete_question(self):
+        with self.app.app_context():
+            self.insert_data_to_database()
+
+            res = self.client().delete('/questions/1')
+
+            data = json.loads(res.data)
+            assert res.status_code == 200
+            assert data['success']
+            questions = self.db.session.query(Question).all()
+            assert len(questions) == 11
+
+    def test_delete_question_does_not_exist(self):
+        with self.app.app_context():
+            self.insert_data_to_database()
+
+            res = self.client().delete('/questions/100')
+
+            data = json.loads(res.data)
+            assert res.status_code == 422
+            assert data['error'] == 'unprocessable'
+            questions = self.db.session.query(Question).all()
+            assert len(questions) == 12
+
     def reset_database(self):
         with self.app.app_context():
             self.db.session.close()
