@@ -178,6 +178,16 @@ class TriviaTestCase(unittest.TestCase):
             questions = self.db.session.query(Question).all()
             assert len(questions) == 12
 
+    def test_get_categories(self):
+        with self.app.app_context():
+            self.insert_data_to_database()
+
+            res = self.client().get('/categories')
+
+            data = json.loads(res.data)
+            assert res.status_code == 200
+            assert data['categories'] == {'1': 'category', '2': 'category2'}
+
     def reset_database(self):
         with self.app.app_context():
             self.db.session.close()
