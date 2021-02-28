@@ -51,7 +51,10 @@ def init_routes(app):
     @app.route('/categories', methods=['GET'])
     def get_categories():
         categories = Category.query.all()
-        return jsonify(map_categories_response(categories))
+        if categories:
+            return jsonify(map_categories_response(categories))
+        else:
+            abort(404)
 
     @app.route('/categories/<int:category_id>/questions', methods=['GET'])
     def get_questions_of_category(category_id):
