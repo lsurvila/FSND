@@ -24,10 +24,10 @@ class TriviaTestCase(unittest.TestCase):
             data = json.loads(res.data)
             assert res.status_code == 200
             assert len(data['questions']) == 10
-            assert data['questions'][0] == {'id': 1, 'question': 'question', 'answer': 'answer', 'category': 'category',
+            assert data['questions'][0] == {'id': 1, 'question': 'question', 'answer': 'answer', 'category': '1',
                                             'difficulty': 2}
             assert data['questions'][9] == {'id': 10, 'question': 'question10', 'answer': 'answer',
-                                            'category': 'category', 'difficulty': 2}
+                                            'category': '1', 'difficulty': 2}
             assert data['total_questions'] == 12
             assert data['categories'] == {'1': 'category', '2': 'category2'}
             assert data['current_category'] is None
@@ -42,9 +42,9 @@ class TriviaTestCase(unittest.TestCase):
             assert res.status_code == 200
             assert len(data['questions']) == 2
             assert data['questions'][0] == {'id': 11, 'question': 'question11', 'answer': 'hello',
-                                            'category': 'category2', 'difficulty': 5}
+                                            'category': '2', 'difficulty': 5}
             assert data['questions'][1] == {'id': 12, 'question': 'questionX', 'answer': 'answerY',
-                                            'category': 'category', 'difficulty': 2}
+                                            'category': '1', 'difficulty': 2}
             assert data['total_questions'] == 12
             assert data['categories'] == {'1': 'category', '2': 'category2'}
             assert data['current_category'] is None
@@ -82,7 +82,7 @@ class TriviaTestCase(unittest.TestCase):
             assert res.status_code == 200
             assert len(data['questions']) == 1
             assert data['questions'][0] == {'id': 12, 'question': 'questionX', 'answer': 'answerY',
-                                            'category': 'category', 'difficulty': 2}
+                                            'category': '1', 'difficulty': 2}
             assert data['total_questions'] == 1
             assert data['categories'] == {'1': 'category', '2': 'category2'}
             assert data['current_category'] is None
@@ -196,6 +196,37 @@ class TriviaTestCase(unittest.TestCase):
             assert res.status_code == 404
             assert data['error'] == 'resource not found'
 
+    def test_get_questions_of_category(self):
+        with self.app.app_context():
+            self.insert_data_to_database()
+
+            res = self.client().get('/categories/1/questions')
+
+            data = json.loads(res.data)
+            assert res.status_code == 200
+            assert data['questions'][0] == {'id': 1, 'question': 'question', 'answer': 'answer', 'category': '1',
+                                            'difficulty': 2}
+            assert data['questions'][6] == {'id': 12, 'question': 'questionX', 'answer': 'answerY',
+                                            'category': '1', 'difficulty': 2}
+            assert data['total_questions'] == 7
+            assert data['categories'] == {'1': 'category', '2': 'category2'}
+            assert data['current_category'] == [1, 'category']
+
+    # def test_post_quizzes_no_questions_played_has_a_question(self):
+    #     with self.app.app_context():
+    #         self.insert_data_to_database()
+    #         request_json = {
+    #             'previous_questions': [],
+    #             'quiz_category': {
+    #                 'id': '1', 'type': 'category'
+    #             }
+    #         }
+    #         res = self.client().post('/quizzes', json=request_json)
+    #
+    #         data = json.loads(res.data)
+    #         assert res.status_code == 200
+    #         assert data['question']
+
     def reset_database(self):
         with self.app.app_context():
             self.db.session.close()
@@ -215,18 +246,18 @@ class TriviaTestCase(unittest.TestCase):
 
     def insert_questions_to_database(self):
         with self.app.app_context():
-            self.db.session.add(Question('question', 'answer', 'category', 2))
-            self.db.session.add(Question('question2', 'answer', 'category', 2))
-            self.db.session.add(Question('question3', 'answer', 'category', 2))
-            self.db.session.add(Question('question4', 'answer', 'category2', 1))
-            self.db.session.add(Question('question5', 'answer', 'category2', 2))
-            self.db.session.add(Question('question6', 'answer', 'category', 2))
-            self.db.session.add(Question('question7', 'answer', 'category', 1))
-            self.db.session.add(Question('question8', 'answer', 'category2', 2))
-            self.db.session.add(Question('question9', 'answer', 'category2', 5))
-            self.db.session.add(Question('question10', 'answer', 'category', 2))
-            self.db.session.add(Question('question11', 'hello', 'category2', 5))
-            self.db.session.add(Question('questionX', 'answerY', 'category', 2))
+            self.db.session.add(Question('question', 'answer', '1', 2))
+            self.db.session.add(Question('question2', 'answer', '1', 2))
+            self.db.session.add(Question('question3', 'answer', '1', 2))
+            self.db.session.add(Question('question4', 'answer', '2', 1))
+            self.db.session.add(Question('question5', 'answer', '2', 2))
+            self.db.session.add(Question('question6', 'answer', '1', 2))
+            self.db.session.add(Question('question7', 'answer', '1', 1))
+            self.db.session.add(Question('question8', 'answer', '2', 2))
+            self.db.session.add(Question('question9', 'answer', '2', 5))
+            self.db.session.add(Question('question10', 'answer', '1', 2))
+            self.db.session.add(Question('question11', 'hello', '2', 5))
+            self.db.session.add(Question('questionX', 'answerY', '1', 2))
             self.db.session.commit()
 
 

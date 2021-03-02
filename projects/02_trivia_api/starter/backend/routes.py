@@ -56,7 +56,7 @@ def init_routes(app):
         else:
             abort(404)
 
-    @app.route('/categories/<int:category_id>/questions', methods=['GET'])
+    @app.route('/categories/<string:category_id>/questions', methods=['GET'])
     def get_questions_of_category(category_id):
         questions = questions_of_category_query(category_id).all()
         current_category = map_category(Category.query.get(category_id))
