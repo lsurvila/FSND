@@ -100,3 +100,7 @@ def init_routes(app):
     @app.errorhandler(422)
     def unprocessable(error):
         return jsonify(error="unprocessable"), 422
+
+    @app.errorhandler(500)
+    def unprocessable(error):
+        return jsonify(error="server error"), 500
