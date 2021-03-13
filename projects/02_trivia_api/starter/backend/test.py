@@ -212,20 +212,80 @@ class TriviaTestCase(unittest.TestCase):
             assert data['categories'] == {'1': 'category', '2': 'category2'}
             assert data['current_category'] == [1, 'category']
 
-    # def test_post_quizzes_no_questions_played_has_a_question(self):
-    #     with self.app.app_context():
-    #         self.insert_data_to_database()
-    #         request_json = {
-    #             'previous_questions': [],
-    #             'quiz_category': {
-    #                 'id': '1', 'type': 'category'
-    #             }
-    #         }
-    #         res = self.client().post('/quizzes', json=request_json)
-    #
-    #         data = json.loads(res.data)
-    #         assert res.status_code == 200
-    #         assert data['question']
+    def test_post_quizzes_no_questions_played_has_a_question(self):
+        with self.app.app_context():
+            self.insert_data_to_database()
+            request_json = {
+                'previous_questions': [],
+                'quiz_category': {
+                    'id': '1', 'type': 'category'
+                }
+            }
+            res = self.client().post('/quizzes', json=request_json)
+
+            data = json.loads(res.data)
+            assert res.status_code == 200
+            assert data['question']
+
+    def test_post_quizzes_some_questions_played_has_a_question(self):
+        with self.app.app_context():
+            self.insert_data_to_database()
+            request_json = {
+                'previous_questions': [1, 2, 3],
+                'quiz_category': {
+                    'id': '1', 'type': 'category'
+                }
+            }
+            res = self.client().post('/quizzes', json=request_json)
+
+            data = json.loads(res.data)
+            assert res.status_code == 200
+            assert data['question']
+
+    def test_post_quizzes_all_questions_played_no_question(self):
+        with self.app.app_context():
+            self.insert_data_to_database()
+            request_json = {
+                'previous_questions': [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
+                'quiz_category': {
+                    'id': '1', 'type': 'category'
+                }
+            }
+            res = self.client().post('/quizzes', json=request_json)
+
+            data = json.loads(res.data)
+            assert res.status_code == 200
+            assert data['question'] is None
+
+    def test_post_quizzes_another_category_has_a_question(self):
+        with self.app.app_context():
+            self.insert_data_to_database()
+            request_json = {
+                'previous_questions': [],
+                'quiz_category': {
+                    'id': '2', 'type': 'category2'
+                }
+            }
+            res = self.client().post('/quizzes', json=request_json)
+
+            data = json.loads(res.data)
+            assert res.status_code == 200
+            assert data['question']
+
+    def test_post_quizzes_all_categories_has_a_question(self):
+        with self.app.app_context():
+            self.insert_data_to_database()
+            request_json = {
+                'previous_questions': [],
+                'quiz_category': {
+                    'id': 0, 'type': 'click'
+                }
+            }
+            res = self.client().post('/quizzes', json=request_json)
+
+            data = json.loads(res.data)
+            assert res.status_code == 200
+            assert data['question']
 
     def reset_database(self):
         with self.app.app_context():
